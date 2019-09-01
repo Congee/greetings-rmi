@@ -4,6 +4,9 @@ import java.net.UnknownHostException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +25,24 @@ public class GreetingImpl extends UnicastRemoteObject implements Greeting {
         LOGGER.info("Receiving call with name {}", name);
         LOGGER.info("Returning greetings with {}", greetings);
         return greetings;
+    }
+
+    @Override
+    public Message hello(Message message) throws RemoteException, UnknownHostException {
+        Greetings greetings = new Greetings();
+        LOGGER.info("Receiving call with name {}", message.getName());
+        Message retMessage = greetings.hello(message);
+        LOGGER.info("Returning greetings with {}", getMessageInJson(retMessage));
+        return retMessage;
+    }
+
+    private String getMessageInJson(Message message) {
+        ObjectMapper om = new ObjectMapper();
+        try {
+            return om.writeValueAsString(message);
+        } catch(JsonProcessingException e){
+            return "*** Empty ***";
+        }
     }
     
 }
